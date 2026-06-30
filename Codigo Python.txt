@@ -1,0 +1,287 @@
+# ==========================================================
+# ACTIVIDAD FORMATIVA 2
+# Simulación y análisis de señales con la Transformada de Fourier
+#
+# Autor:
+# Fecha:
+# ==========================================================
+
+# Importar librerías
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# ==========================================================
+# CONFIGURACIÓN GENERAL
+# ==========================================================
+
+# Frecuencia de muestreo
+Fs = 1000
+
+# Tiempo de simulación
+T = 1
+
+# Vector de tiempo
+t = np.linspace(0, T, Fs, endpoint=False)
+
+# ==========================================================
+# CREACIÓN DE LAS SEÑALES
+# ==========================================================
+
+# Señal senoidal de 5 Hz
+senal_seno = np.sin(2 * np.pi * 5 * t)
+
+# Función escalón
+senal_escalon = np.heaviside(t - 0.5, 1)
+
+# Pulso rectangular
+senal_pulso = signal.square(2 * np.pi * 2 * t)
+
+# ==========================================================
+# FUNCIÓN PARA CALCULAR FFT
+# ==========================================================
+
+def calcular_fft(senal):
+
+    fft = np.fft.fft(senal)
+
+    frecuencia = np.fft.fftfreq(len(senal), d=1/Fs)
+
+    magnitud = np.abs(fft)
+
+    fase = np.angle(fft)
+
+    return frecuencia, magnitud, fase
+
+
+# ==========================================================
+# GRAFICAR SEÑAL EN EL TIEMPO
+# ==========================================================
+
+def graficar_tiempo(t, senal, titulo):
+
+    plt.figure(figsize=(10,4))
+
+    plt.plot(t, senal)
+
+    plt.title(titulo)
+
+    plt.xlabel("Tiempo (s)")
+
+    plt.ylabel("Amplitud")
+
+    plt.grid(True)
+
+    plt.show()
+
+
+# ==========================================================
+# GRAFICAR ESPECTRO
+# ==========================================================
+
+def graficar_fft(f, magnitud, fase, titulo):
+
+    plt.figure(figsize=(12,5))
+
+    plt.subplot(1,2,1)
+
+    plt.plot(f, magnitud)
+
+    plt.title("Magnitud")
+
+    plt.xlabel("Frecuencia (Hz)")
+
+    plt.ylabel("Magnitud")
+
+    plt.grid(True)
+
+    plt.xlim(-20,20)
+
+    plt.subplot(1,2,2)
+
+    plt.plot(f, fase)
+
+    plt.title("Fase")
+
+    plt.xlabel("Frecuencia (Hz)")
+
+    plt.ylabel("Radianes")
+
+    plt.grid(True)
+
+    plt.xlim(-20,20)
+
+    plt.suptitle(titulo)
+
+    plt.tight_layout()
+
+    plt.show()
+
+
+# ==========================================================
+# SEÑAL SENOIDAL
+# ==========================================================
+
+graficar_tiempo(t, senal_seno, "Señal Senoidal")
+
+f, mag, fase = calcular_fft(senal_seno)
+
+graficar_fft(f, mag, fase, "Transformada de Fourier - Señal Senoidal")
+
+
+# ==========================================================
+# FUNCIÓN ESCALÓN
+# ==========================================================
+
+graficar_tiempo(t, senal_escalon, "Función Escalón")
+
+f, mag, fase = calcular_fft(senal_escalon)
+
+graficar_fft(f, mag, fase, "Transformada de Fourier - Escalón")
+
+
+# ==========================================================
+# PULSO RECTANGULAR
+# ==========================================================
+
+graficar_tiempo(t, senal_pulso, "Pulso Rectangular")
+
+f, mag, fase = calcular_fft(senal_pulso)
+
+graficar_fft(f, mag, fase, "Transformada de Fourier - Pulso Rectangular")
+
+
+# ==========================================================
+# PROPIEDAD DE LINEALIDAD
+# ==========================================================
+
+print("\n--------------------------------------")
+print("PROPIEDAD DE LINEALIDAD")
+print("--------------------------------------")
+
+senal_suma = senal_seno + senal_pulso
+
+graficar_tiempo(t, senal_suma, "Suma de señales")
+
+f, mag, fase = calcular_fft(senal_suma)
+
+graficar_fft(f, mag, fase, "FFT de la suma")
+
+
+# ==========================================================
+# PROPIEDAD DE DESPLAZAMIENTO
+# ==========================================================
+
+print("\n--------------------------------------")
+print("PROPIEDAD DE DESPLAZAMIENTO")
+print("--------------------------------------")
+
+senal_desplazada = np.roll(senal_seno, 100)
+
+plt.figure(figsize=(10,4))
+
+plt.plot(t, senal_seno, label="Original")
+
+plt.plot(t, senal_desplazada, label="Desplazada")
+
+plt.legend()
+
+plt.grid()
+
+plt.title("Desplazamiento en el tiempo")
+
+plt.show()
+
+f, mag, fase = calcular_fft(senal_desplazada)
+
+graficar_fft(f, mag, fase, "FFT Señal Desplazada")
+
+
+# ==========================================================
+# PROPIEDAD DE ESCALAMIENTO
+# ==========================================================
+
+print("\n--------------------------------------")
+print("PROPIEDAD DE ESCALAMIENTO")
+print("--------------------------------------")
+
+senal_rapida = np.sin(2*np.pi*10*t)
+
+plt.figure(figsize=(10,4))
+
+plt.plot(t, senal_seno, label="5 Hz")
+
+plt.plot(t, senal_rapida, label="10 Hz")
+
+plt.legend()
+
+plt.grid()
+
+plt.title("Escalamiento en frecuencia")
+
+plt.show()
+
+f, mag, fase = calcular_fft(senal_rapida)
+
+graficar_fft(f, mag, fase, "FFT Señal Escalada")
+
+
+# ==========================================================
+# COMPARACIÓN FINAL
+# ==========================================================
+
+plt.figure(figsize=(12,8))
+
+plt.subplot(3,1,1)
+
+plt.plot(t, senal_seno)
+
+plt.title("Señal Senoidal")
+
+plt.grid()
+
+plt.subplot(3,1,2)
+
+plt.plot(t, senal_escalon)
+
+plt.title("Escalón")
+
+plt.grid()
+
+plt.subplot(3,1,3)
+
+plt.plot(t, senal_pulso)
+
+plt.title("Pulso Rectangular")
+
+plt.grid()
+
+plt.tight_layout()
+
+plt.show()
+
+
+print("\n========================================")
+
+print("ANÁLISIS FINAL")
+
+print("========================================")
+
+print("""
+1. La señal senoidal presenta una frecuencia dominante.
+
+2. La función escalón contiene una gran cantidad de frecuencias,
+debido al cambio brusco que presenta.
+
+3. El pulso rectangular posee múltiples componentes de frecuencia,
+por lo que su espectro es mucho más amplio.
+
+4. La propiedad de linealidad demuestra que la transformada de la
+suma de señales es equivalente a la suma de sus transformadas.
+
+5. El desplazamiento temporal modifica principalmente la fase de la
+transformada, mientras que la magnitud permanece prácticamente igual.
+
+6. Al incrementar la frecuencia de la señal, el espectro también se
+desplaza hacia frecuencias más altas.
+""")
